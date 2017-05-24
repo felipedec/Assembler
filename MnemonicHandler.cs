@@ -6,83 +6,49 @@ namespace Assembler
 {
     public abstract class MnemonicHandler
     {
-        private Regex[][] m_ParametersRegex;
-        private MnemonicSyntax[] SupportedSyntax;
+        private MnemonicSyntax[] SupportedSyntaxes;
 
-        public static MnemonicSyntax CreateSyntax(MnemonicSyntax.AssembleDelegate assemble, params string[] parametersRegExpression)
+        public static MnemonicSyntax CreateSyntax(string[] ParametersRegExpression, AssembleDelegate AssembleDelegate)
         {
-            var parametersRegEx = new Regex[parametersRegExpression.Length];
-            for(int i = 0; i < parametersRegExpression.Length; i++)
-            {
-                parametersRegEx[i] = new Regex(parametersRegExpression[i], Assembler.kRegexOption);
-            }
-
-            return new MnemonicSyntax()
-            {
-                Assemble = assemble,
-                ParametersRegEx = parametersRegEx
-            };
+            return new MnemonicSyntax(GetParametersRegex(ParametersRegExpression), AssembleDelegate);
         }
 
-        public int GetParametersMatchedIndex(string args, out Match[] matches)
+        public bool TryGetMatchedSyntax(string Args, out Match[] OutMatches, out MnemonicSyntax? OutSyntax)
         {
-            string[] argsArray = args.Split(new string[]{ " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            OutSyntax = null;
+            OutMatches = null;
 
-            for(int i = 0; i < m_ParametersRegex.Length; i++)
+            string[] ArgsArray = Args.Split(new string[]{ " ", "\t" }, StringSplitOptions.RemoveEmptyEntries);
+
+            for (int Index = 0; Index < SupportedSyntaxes.Length; Index++)
             {
-                if (m_ParametersRegex[i] == null && argsArray.Length > 0
-                    ||m_ParametersRegex[i].Length != argsArray.Length)
-                    continue;
-
-                var tmpMatches = new Match[argsArray.Length];
-                bool flag = false;
-
-                for(int j = 0; j < argsArray.Length; j++)
+                if(SupportedSyntaxes[Index].Match(ArgsArray, out OutMatches))
                 {
-                    if (string.IsNullOrEmpty(argsArray[j]))
-                        continue;
-
-                    tmpMatches[j] = m_ParametersRegex[i][j].Match(argsArray[j]);
-
-                    if(!tmpMatches[j].Success)
-                    {
-                        flag = true;
-                        continue;
-                    }
+                    OutSyntax = SupportedSyntaxes[Index];
+                    return true;
                 }
-
-                if (flag)
-                    continue;
-
-                matches = tmpMatches;
-                return i;
             }
-            matches = null;
-            return -1;
+
+            return false;
         }
 
-        public abstract Regex[][] GetParametersSupported();
-
-        public abstract void AssembleMachineCode(int parametersDeclarationIndex,
-                                               Match[] argumentsMatches,
-                                               StreamWriter streamWriter,
-                                               VirtualMachineSetup virtualMachineSetup);
+        public abstract MnemonicSyntax[] GetParametersSupported();
 
 
-        protected static Regex[] GetParametersRegex(params string[] patterns)
+        protected static Regex[] GetParametersRegex(params string[] Patterns)
         {
-            var result = new Regex[patterns.Length];
+            var Result = new Regex[Patterns.Length];
 
-            for (int i = 0; i < patterns.Length; i++)
+            for (int Index = 0; Index < Patterns.Length; Index++)
             {
-                result[i] = new Regex(patterns[i], Assembler.kRegexOption);
+                Result[Index] = new Regex("^" + Patterns[Index].ToLower() + "$", Assembler.kRegexOption);
             }
-            return result;
+            return Result;
         }
 
         public MnemonicHandler()
         {
-            this.m_ParametersRegex = GetParametersSupported();
+            SupportedSyntaxes = GetParametersSupported();
         }
     }
 }

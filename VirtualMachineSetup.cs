@@ -1,69 +1,44 @@
-﻿namespace Assembler
+﻿using System;
+
+namespace Assembler
 {
     public sealed class VirtualMachineSetup
     {
-        private readonly int m_WordBitsLength;
-        private readonly int m_InstructionAddressBitsLength;
-        private readonly int m_ParametersBitsLength;
-        private readonly int m_MaxInstructionAddress;
-
-        public int ParametersBitsLength
-        {
-            get
-            {
-                return this.m_ParametersBitsLength;
-            }
-        }
-
-        public int MaxInstructionAddress
-        {
-            get
-            {
-                return m_MaxInstructionAddress;
-            }
-        }
-
-        public int InstructionAddressBitsLength
-        {
-            get
-            {
-                return m_InstructionAddressBitsLength;
-            }
-        }
-
-        public int WordBitsLength
-        {
-            get
-            {
-                return m_WordBitsLength;
-            }
-        }
+        public readonly int WordBitsLength;
+        public readonly int InstructionAddressBitsLength;
+        public readonly int ArgumentBitsLength;
+        public readonly int MaxAddress;
 
         private VirtualMachineSetup()
         {
             // Private constructor..
         }
 
-        private VirtualMachineSetup(int wordBitsLength, int instructionAddressBitsLength)
+        public string IntToBinaryString(Int32 Value)
         {
-            this.m_WordBitsLength = wordBitsLength;
-            this.m_InstructionAddressBitsLength = instructionAddressBitsLength;
-            this.m_ParametersBitsLength = (this.m_WordBitsLength - this.m_InstructionAddressBitsLength) / 2;
-            this.m_MaxInstructionAddress = (1 << this.m_ParametersBitsLength + 1) - 1;
-            this.m_MaxInstructionAddress -= this.m_MaxInstructionAddress % this.m_ParametersBitsLength;
+            return Convert.ToString(Value, 2).PadLeft(InstructionAddressBitsLength, '0');
         }
 
-        public static VirtualMachineSetup CreateSetup(int wordBitsLength, int instructionAddressBitsLength)
+        private VirtualMachineSetup(int InWordBitsLength, int InInstructionAddressBitsLength)
         {
-            var virtualMachineSetup = new VirtualMachineSetup(wordBitsLength, instructionAddressBitsLength);
+            WordBitsLength = InWordBitsLength;
+            InstructionAddressBitsLength = InInstructionAddressBitsLength;
+            ArgumentBitsLength = (WordBitsLength - InstructionAddressBitsLength) / 2;
+            MaxAddress = (1 << ArgumentBitsLength + 1) - 1;
+            MaxAddress -= MaxAddress % ArgumentBitsLength;
+        }
 
-            if (instructionAddressBitsLength >= wordBitsLength
-                || (wordBitsLength - instructionAddressBitsLength) % 2 == 1
-                || virtualMachineSetup.WordBitsLength <= 0
-                || virtualMachineSetup.InstructionAddressBitsLength <= 0)
-                throw new InvalidVirutalMachineSetupException();
+        public static VirtualMachineSetup CreateSetup(int InWordBitsLength, int InInstructionAddressBitsLength)
+        {
+            var VirtualMachineSetup = new VirtualMachineSetup(InWordBitsLength, InInstructionAddressBitsLength);
 
-            return virtualMachineSetup;
+            if (InInstructionAddressBitsLength >= InWordBitsLength
+                || (InWordBitsLength - InInstructionAddressBitsLength) % 2 == 1
+                || VirtualMachineSetup.WordBitsLength <= 0
+                || VirtualMachineSetup.InstructionAddressBitsLength <= 0)
+                throw new Exception("Invalid virtual machine setup.");
+
+            return VirtualMachineSetup;
         }
     }
 }

@@ -9,75 +9,111 @@ namespace Assembler
     public class Assembler
     {
         public const RegexOptions kRegexOption = RegexOptions.Compiled | RegexOptions.IgnoreCase;
-        private static Regex MnemonicRegex = new Regex(@"^\s*(?<mnemonic>[a-z]+)(\s+(?<args>.*)\s*)?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static Dictionary<string, MnemonicHandler> Mnemonics = new Dictionary<string, MnemonicHandler>();
 
-        private readonly VirtualMachineSetup m_VirtualMachineSetup;
-        private readonly StreamReader m_Input;
-        private readonly StreamWriter m_Output;
+        private static Regex MnemonicRegex = new Regex(@"^\s*(?<Mnemonic>[a-z]+)(\s+(?<Args>.*)\s*)?$", kRegexOption);
+        private static Dictionary<String, MnemonicHandler> Mnemonics = new Dictionary<String, MnemonicHandler>();
+
+        public static Assembler Instance { get; private set; }
+
+        private readonly VirtualMachineSetup VMSetup;
+        private readonly StreamReader StreamReader;
+        private readonly StreamWriter StreamWriter;
+
+        public static VirtualMachineSetup VirtualMachineSetup
+        {
+            get
+            {
+                return Instance.VMSetup;
+            }
+        }
 
         static Assembler()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var types = assembly.GetTypes();
+            var Assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var Types = Assembly.GetTypes();
 
-            foreach(var type in types)
+            foreach(var Type in Types)
             {
-                var attributes = (MnemonicAttribute[])type.GetCustomAttributes(typeof(MnemonicAttribute), false);
+                var Attributes = (MnemonicAttribute[])Type.GetCustomAttributes(typeof(MnemonicAttribute), false);
 
-                foreach(var attr in attributes)
+                foreach(var Attr in Attributes)
                 {
-                    Mnemonics.Add(attr.Mnemonic, (MnemonicHandler)Activator.CreateInstance(type));
+                    Mnemonics.Add(Attr.Mnemonic, (MnemonicHandler)Activator.CreateInstance(Type));
                 }
             }
         }
 
-        public Assembler(VirtualMachineSetup virtualMachineSetup, StreamReader input, StreamWriter output)
+        public static Assembler Init(int InWordBitsLength,
+                                     int InInstructionAddressBitsLength,
+                                     StreamReader InInputStream,
+                                     StreamWriter InOutputStream)
         {
-            this.m_VirtualMachineSetup = virtualMachineSetup;
-            this.m_Input = input;
-            this.m_Output = output;
+            return new Assembler(InWordBitsLength, InInstructionAddressBitsLength, InInputStream, InOutputStream);
+        }
+
+        private Assembler()
+        {
+            if (Instance != null)
+            {
+                throw new Exception("Cannot instance more than one assembler.");
+            }
+
+            Instance = this;
+        }
+
+        private Assembler(int InWordBitsLength,
+                          int InInstructionAddressBitsLength,
+                          StreamReader InInputStream,
+                          StreamWriter InOutputStream)
+                          : this()
+        {
+            VMSetup = VirtualMachineSetup.CreateSetup(InWordBitsLength, InInstructionAddressBitsLength);
+
+            StreamReader = InInputStream;
+            StreamWriter = InOutputStream;
         }
 
 
         public void Assemble()
         {
-            string line;
-            for (int counter = 0; (line = this.m_Input.ReadLine()) != null; counter++)
+            String Line;
+            Match[] Matches;
+            MnemonicSyntax? Syntax = null;
+            MnemonicHandler MnemonicHandler;
+
+            for (Int32 LineNumber = 1; (Line = StreamReader.ReadLine()) != null; LineNumber++)
             {
-                var match = MnemonicRegex.Match(line);
-                if(match.Success)
+                var Match = MnemonicRegex.Match(Line);
+                if(Match.Success)
                 {
-                    var groups = match.Groups;
+                    var Groups = Match.Groups;
 
-                    MnemonicHandler mnemonicHandler;
-                    if(Mnemonics.TryGetValue(groups["mnemonic"].Value, out mnemonicHandler))
+                    if(Mnemonics.TryGetValue(Groups["Mnemonic"].Value, out MnemonicHandler))
                     {
-                        string args = groups["args"].Value;
+                        String Args = Groups["Args"].Value;
 
-                        if(string.IsNullOrEmpty(args))
+
+                        if(Args == null)
+                            Args = String.Empty;
+
+
+                        if(MnemonicHandler.TryGetMatchedSyntax(Args, out Matches, out Syntax))
                         {
-                            args = string.Empty;
+                            Syntax.GetValueOrDefault().AssembleInstruction(StreamWriter, StreamReader, Matches);
                         }
-
-                        Match[] matches;
-                        int matchIndex = mnemonicHandler.GetParametersMatchedIndex(args, out matches);
-
-                        if(matchIndex < 0)
+                        else
                         {
-                            throw new Exception("Invalid arguments.");
+                            throw new Exception("Invalid arguments syntax.");
                         }
-
-                        mnemonicHandler.AssembleMachineCode(0, matches, this.m_Output, this.m_VirtualMachineSetup);
                     }
                     else
                     {
-                        throw new System.Exception("Invalid mnemonic.");
+                        throw new Exception("Invalid mnemonic.");
                     }
                 }
             }
-            this.m_Input.Close();
-            this.m_Output.Close();
+            StreamReader.Close();
+            StreamWriter.Close();
         }
     }
 }

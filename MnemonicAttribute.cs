@@ -8,9 +8,9 @@ namespace Assembler
     {
         public readonly string Mnemonic;
 
-        public MnemonicAttribute(string mnemonic)
+        public MnemonicAttribute(string InMnemonic)
         {
-            this.Mnemonic = mnemonic;
+            Mnemonic = InMnemonic.ToLower();
         }
     }
 }
