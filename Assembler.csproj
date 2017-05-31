@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="AddHandler.cs" />
     <Compile Include="InstructionBuilder.cs" />
-    <Compile Include="MnemonicAssembleInfo.cs" />
     <Compile Include="Assembler.cs" />
     <Compile Include="MnemonicAttribute.cs" />
     <Compile Include="MnemonicHandler.cs" />

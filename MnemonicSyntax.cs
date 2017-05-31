@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Assembler
 {
-    public delegate void AssembleDelegate(MnemonicAssembleInfo Args);
+    public delegate void AssembleDelegate();
 
 
     public struct MnemonicSyntax
@@ -26,11 +26,9 @@ namespace Assembler
             Assemble = InAssemble;
         }
 
-        public void AssembleInstruction(StreamWriter StreamWriter,
-            StreamReader StreamReader,
-            Match[] Matches)
+        public void AssembleInstruction()
         {
-            Assemble(new MnemonicAssembleInfo(this, Matches, StreamWriter, StreamReader));
+            Assemble();
         }
 
         public bool Match(string[] Args, out Match[] OutMatches)

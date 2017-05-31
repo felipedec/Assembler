@@ -43,7 +43,7 @@ namespace Assembler
 
         public InstructionBuilder Write()
         {
-            Assembler.StreamWriter.WriteLine(CachedInstruction);
+            Assembler.OutputStream.WriteLine(CachedInstruction);
             return this;
         }
 
