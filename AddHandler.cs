@@ -11,8 +11,8 @@ namespace Assembler
             {
                 /* Recebe um registrador e um numero decimal. */
                 CreateSyntax(new String[] { "R(?<Register>[0-9]+)", "#(?<Decimal>[0-9]+)" }, () =>
-                {        
-            
+                {
+                    Assembler.Output.WriteLine("Testando");
                 }),
 
                 /* Recebe um registrador e o endereço de outro registrador. */

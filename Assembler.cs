@@ -41,6 +41,16 @@ namespace Assembler
             }
         }
 
+        public static void Jump(Int32 Line)
+        {
+            if(Line < 0 || Line > InputLines.Length)
+            {
+                throw new Exception("[ERROR]");
+            }
+
+            CurrentLine = Line;
+        }
+
         public static void SetStreams(String InputPath, String OutputPath)
         {
             Output = new StreamWriter(OutputPath);
