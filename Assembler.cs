@@ -6,26 +6,20 @@ using System;
 
 namespace Assembler
 {
-    public class Assembler
+    public static class Assembler
     {
+        public const Int32 kInstructionAddressBitsLength = 8;
+        public const Int32 kArgumentBitsLength = 8;
+        public const Int32 kWordBitsLength = 24;
+        public const Int32 kMaxArgumentValue = 0xFF;
+
         public const RegexOptions kRegexOption = RegexOptions.Compiled | RegexOptions.IgnoreCase;
 
         private static Regex MnemonicRegex = new Regex(@"^\s*(?<Mnemonic>[a-z]+)(\s+(?<Args>.*)\s*)?$", kRegexOption);
         private static Dictionary<String, MnemonicHandler> Mnemonics = new Dictionary<String, MnemonicHandler>();
 
-        public static Assembler Instance { get; private set; }
-
-        private readonly VirtualMachineSetup VMSetup;
-        private readonly StreamReader StreamReader;
-        private readonly StreamWriter StreamWriter;
-
-        public static VirtualMachineSetup VirtualMachineSetup
-        {
-            get
-            {
-                return Instance.VMSetup;
-            }
-        }
+        public static StreamReader StreamReader { get; private set; }
+        public static StreamWriter StreamWriter { get; private set; }
 
         static Assembler()
         {
@@ -43,38 +37,12 @@ namespace Assembler
             }
         }
 
-        public static Assembler Init(int InWordBitsLength,
-                                     int InInstructionAddressBitsLength,
-                                     StreamReader InInputStream,
-                                     StreamWriter InOutputStream)
+        public static void SetStreams(StreamReader InInputStream, StreamWriter InOutputStream)
         {
-            return new Assembler(InWordBitsLength, InInstructionAddressBitsLength, InInputStream, InOutputStream);
-        }
-
-        private Assembler()
-        {
-            if (Instance != null)
-            {
-                throw new Exception("Cannot instance more than one assembler.");
-            }
-
-            Instance = this;
-        }
-
-        private Assembler(int InWordBitsLength,
-                          int InInstructionAddressBitsLength,
-                          StreamReader InInputStream,
-                          StreamWriter InOutputStream)
-                          : this()
-        {
-            VMSetup = VirtualMachineSetup.CreateSetup(InWordBitsLength, InInstructionAddressBitsLength);
-
             StreamReader = InInputStream;
             StreamWriter = InOutputStream;
         }
-
-
-        public void Assemble()
+        public static void Assemble()
         {
             String Line;
             Match[] Matches;

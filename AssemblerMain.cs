@@ -10,8 +10,8 @@ namespace Assembler
             var InputStreamReader = new StreamReader("input.txt");
             var OutputStreamWriter = new StreamWriter("output.txt");
 
-            Assembler.Init(24, 8, InputStreamReader, OutputStreamWriter);
-            Assembler.Instance.Assemble();
+            Assembler.SetStreams(InputStreamReader, OutputStreamWriter);
+            Assembler.Assemble();
 
 
             Console.WriteLine("Input:");

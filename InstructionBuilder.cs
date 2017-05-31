@@ -20,7 +20,7 @@ namespace Assembler
 
         public InstructionBuilder AppendInstructionAddress(Int32 InstructionAddress)
         {
-            return AppendValue(Assembler.VirtualMachineSetup.InstructionAddressBitsLength, InstructionAddress);
+            return AppendValue(Assembler.kInstructionAddressBitsLength, InstructionAddress);
         }
 
         public InstructionBuilder AppendArgument(String GroupName, ValueModifierDelegate ValueModifier = null)
@@ -30,7 +30,7 @@ namespace Assembler
 
         public InstructionBuilder AppendArgument(Int32 ArgumentValue)
         {
-            return AppendValue(Assembler.VirtualMachineSetup.ArgumentBitsLength, ArgumentValue);
+            return AppendValue(Assembler.kArgumentBitsLength, ArgumentValue);
         }
 
         public InstructionBuilder AppendWord(String GroupName, ValueModifierDelegate ValueModifier = null)
@@ -40,7 +40,7 @@ namespace Assembler
 
         public InstructionBuilder AppendWord(Int32 WordValue)
         {
-            return AppendValue(Assembler.VirtualMachineSetup.WordBitsLength, WordValue);
+            return AppendValue(Assembler.kWordBitsLength, WordValue);
         }
 
         public InstructionBuilder Write()
