@@ -8,7 +8,6 @@ namespace Assembler
 
     public class InstructionBuilder
     {
-        private Match[] Matches;
         private String CachedInstruction;
 
         public InstructionBuilder AppendInstructionAddress(String GroupName, ValueModifierDelegate ValueModifier = null)
@@ -43,7 +42,7 @@ namespace Assembler
 
         public InstructionBuilder Write()
         {
-            Assembler.OutputStream.WriteLine(CachedInstruction);
+            Assembler.OutputLines.AddLast(CachedInstruction);
             return this;
         }
 
@@ -92,7 +91,7 @@ namespace Assembler
 
         private T GetValueByGroupName<T>(string GroupName)
         {
-            foreach (Match Match in Matches)
+            foreach (Match Match in Assembler.PreviouslyMatches)
             {
                 Group Group = Match.Groups[GroupName];
 
@@ -110,7 +109,7 @@ namespace Assembler
 
         private T GetGroupValue<T>(int ArgumentIndex, string GroupName)
         {
-            Group Group = Matches[ArgumentIndex].Groups[GroupName.ToLower()];
+            Group Group = Assembler.PreviouslyMatches[ArgumentIndex].Groups[GroupName.ToLower()];
             return ConvertValue<T, string>(Group.Value);
         }
 

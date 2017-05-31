@@ -18,15 +18,15 @@ namespace Assembler
         private static Regex MnemonicRegex = new Regex(@"^\s*(?<Mnemonic>[a-z]+)(\s+(?<Args>.*)\s*)?$", kRegexOption);
         private static Dictionary<String, MnemonicHandler> Mnemonics = new Dictionary<String, MnemonicHandler>();
 
-        private static Match[] PreviouslyMatches = new Match[];
-
-        private static String[] InputLines;
-
-        public static StreamReader StreamReader { get; private set; }
-        public static StreamWriter OutputStream { get; private set; }
+        public static Match[] PreviouslyMatches { get; private set; }
+        public static String[] InputLines { get; private set; }
+        public static StreamWriter Output { get; private set; }
+        public static Int32 CurrentLine { get; private set; }
+        public static LinkedList<String> OutputLines { get; private set; }
 
         static Assembler()
         {
+            OutputLines = new LinkedList<String>();
             var Assembly = System.Reflection.Assembly.GetExecutingAssembly();
             var Types = Assembly.GetTypes();
 
@@ -43,15 +43,15 @@ namespace Assembler
 
         public static void SetStreams(String InputPath, String OutputPath)
         {
-            OutputStream = new StreamWriter(OutputPath);
+            Output = new StreamWriter(OutputPath);
             InputLines = File.ReadAllLines(InputPath);
         }
         public static void Assemble()
         {
-            for (Int32 LineIndex = 0; LineIndex < InputLines.Length; LineIndex++)
+            for (CurrentLine = 0; CurrentLine < InputLines.Length; CurrentLine++)
             {
-                String Line = InputLines[LineIndex];
-
+                String Line = InputLines[CurrentLine];
+          
                 var Match = MnemonicRegex.Match(Line);
 
                 if(Match.Success)
@@ -59,7 +59,7 @@ namespace Assembler
                     var Groups = Match.Groups;
 
                     MnemonicHandler MnemonicHandler;
-                    if (Mnemonics.TryGetValue(Groups["Mnemonic"].Value, out MnemonicHandler))
+                    if (Mnemonics.TryGetValue(Groups["Mnemonic"].Value.ToLower(), out MnemonicHandler))
                     {
                         String Args = Groups["Args"].Value;
 
@@ -67,10 +67,12 @@ namespace Assembler
                         if(Args == null)
                             Args = String.Empty;
 
-                        MnemonicSyntax Syntax;
-                        if(MnemonicHandler.TryGetMatchedSyntax(Args, out PreviouslyMatches, out Syntax))
+                        MnemonicSyntax? Syntax;
+                        Match[] Matches;
+                        if(MnemonicHandler.TryGetMatchedSyntax(Args, out Matches, out Syntax))
                         {
-                            Syntax.AssembleInstruction();
+                            PreviouslyMatches = Matches;
+                            Syntax.GetValueOrDefault().AssembleInstruction();
                         }
                         else
                         {
@@ -83,8 +85,7 @@ namespace Assembler
                     }
                 }
             }
-            StreamReader.Close();
-            OutputStream.Close();
+            Output.Close();
         }
     }
 }

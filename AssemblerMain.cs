@@ -7,10 +7,7 @@ namespace Assembler
     {
         static void Main(String[] Args)
         {
-            var InputStreamReader = new StreamReader("input.txt");
-            var OutputStreamWriter = new StreamWriter("output.txt");
-
-            Assembler.SetStreams(InputStreamReader, OutputStreamWriter);
+            Assembler.SetStreams("input.txt", "output.txt");
             Assembler.Assemble();
 
 
