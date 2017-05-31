@@ -8,10 +8,8 @@ namespace Assembler
 
     public class InstructionBuilder
     {
-        private StreamWriter StreamWriter;
         private Match[] Matches;
-        private String Instruction;
-
+        private String CachedInstruction;
 
         public InstructionBuilder AppendInstructionAddress(String GroupName, ValueModifierDelegate ValueModifier = null)
         {
@@ -45,13 +43,19 @@ namespace Assembler
 
         public InstructionBuilder Write()
         {
-            StreamWriter.WriteLine(Instruction);
+            Assembler.StreamWriter.WriteLine(CachedInstruction);
+            return this;
+        }
+
+        public InstructionBuilder AddString(String String)
+        {
+            CachedInstruction += String;
             return this;
         }
 
         public InstructionBuilder NextWord()
         {
-            Instruction += "\n";
+            CachedInstruction += "\n";
             return this;
         }
 
@@ -81,7 +85,7 @@ namespace Assembler
 
             BinaryString = BinaryString.PadLeft(MaxLength);
 
-            Instruction += BinaryString;
+            CachedInstruction += BinaryString;
 
             return this;
         }

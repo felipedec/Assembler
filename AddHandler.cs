@@ -15,6 +15,7 @@ namespace Assembler
                     Int32 Decimal = Info.GetGroupValue<Int32>(1, "Decimal");
                     Int32 RegisterIndex = Info.GetGroupValue<Int32>(0, "Register");
                     Boolean bUseDoubleWord = (Decimal < Assembler.kMaxArgumentValue);
+
                 }),
 
                 /* Recebe um registrador e o endereço de outro registrador. */
