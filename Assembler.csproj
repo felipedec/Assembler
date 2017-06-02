@@ -44,13 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddHandler.cs" />
-    <Compile Include="InstructionBuilder.cs" />
-    <Compile Include="Assembler.cs" />
+    <Compile Include="ArithmeticHandler.cs" />
+    <Compile Include="AssemblerCore.cs" />
+    <Compile Include="AssemblyEvent.cs" />
+    <Compile Include="CallHandler.cs" />
+    <Compile Include="HaltHandler.cs" />
+    <Compile Include="JumpHandler.cs" />
     <Compile Include="MnemonicAttribute.cs" />
     <Compile Include="MnemonicHandler.cs" />
-    <Compile Include="MnemonicSyntax.cs" />
-    <Compile Include="AssemblerMain.cs" />
+    <Compile Include="ArgumentsPattern.cs" />
+    <Compile Include="Assembler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

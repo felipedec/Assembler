@@ -1,101 +1,67 @@
-﻿using System.IO;
-using System.Text.RegularExpressions;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System;
+using System.IO;
 
 namespace Assembler
 {
-    public static class Assembler
+    class Assembler
     {
-        public const Int32 kInstructionAddressBitsLength = 8;
-        public const Int32 kArgumentBitsLength = 8;
-        public const Int32 kWordBitsLength = 24;
-        public const Int32 kMaxArgumentValue = 0xFF;
+        private static Stack<String> ErrorOutput = new Stack<string>();
 
-        public const RegexOptions kRegexOption = RegexOptions.Compiled | RegexOptions.IgnoreCase;
+        private const String kTestInputFile = "..\\..\\Testing\\input.txt";
+        private const String kTestOutputFile = "..\\..\\Testing\\output.txt";
 
-        private static Regex MnemonicRegex = new Regex(@"^\s*(?<Mnemonic>[a-z]+)(\s+(?<Args>.*)\s*)?$", kRegexOption);
-        private static Dictionary<String, MnemonicHandler> Mnemonics = new Dictionary<String, MnemonicHandler>();
-
-        public static Match[] PreviouslyMatches { get; private set; }
-        public static String[] InputLines { get; private set; }
-        public static StreamWriter Output { get; private set; }
-        public static Int32 CurrentLine { get; private set; }
-        public static LinkedList<String> OutputLines { get; private set; }
-
-        static Assembler()
+        static void Main(String[] Args)
         {
-            OutputLines = new LinkedList<String>();
-            var Assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var Types = Assembly.GetTypes();
+            AssemblerCore.SetIO(kTestInputFile, kTestOutputFile);
+            AssemblerCore.Assemble();
 
-            foreach(var Type in Types)
+
+            Console.WriteLine("Arquivo de entrada:");
+            String[] Lines = File.ReadAllLines(kTestInputFile);
+
+            for (int Index = 1; Index <= Lines.Length; Index++)
             {
-                var Attributes = (MnemonicAttribute[])Type.GetCustomAttributes(typeof(MnemonicAttribute), false);
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write(Index.ToString().PadLeft(3, ' ') + " ");
 
-                foreach(var Attr in Attributes)
-                {
-                    Mnemonics.Add(Attr.Mnemonic, (MnemonicHandler)Activator.CreateInstance(Type));
-                }
-            }
-        }
-
-        public static void Jump(Int32 Line)
-        {
-            if(Line < 0 || Line > InputLines.Length)
-            {
-                throw new Exception("[ERROR]");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(Lines[Index - 1]);
             }
 
-            CurrentLine = Line;
+            Console.ResetColor();
+
+            Console.WriteLine("Arquivo de saída:");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(File.ReadAllText(kTestOutputFile));
+
+            PrintOutputErrors();
+
+            Console.ReadKey();
         }
 
-        public static void SetStreams(String InputPath, String OutputPath)
+        private static void PrintOutputErrors()
         {
-            Output = new StreamWriter(OutputPath);
-            InputLines = File.ReadAllLines(InputPath);
-        }
-        public static void Assemble()
-        {
-            for (CurrentLine = 0; CurrentLine < InputLines.Length; CurrentLine++)
+            if (ErrorOutput.Count == 0)
+                return;
+
+            Console.WriteLine("Erros na Montagem:");
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.BackgroundColor = ConsoleColor.DarkRed;
+
+            while(ErrorOutput.Count > 0)
             {
-                String Line = InputLines[CurrentLine];
-          
-                var Match = MnemonicRegex.Match(Line);
-
-                if(Match.Success)
-                {
-                    var Groups = Match.Groups;
-
-                    MnemonicHandler MnemonicHandler;
-                    if (Mnemonics.TryGetValue(Groups["Mnemonic"].Value.ToLower(), out MnemonicHandler))
-                    {
-                        String Args = Groups["Args"].Value;
-
-
-                        if(Args == null)
-                            Args = String.Empty;
-
-                        MnemonicSyntax? Syntax;
-                        Match[] Matches;
-                        if(MnemonicHandler.TryGetMatchedSyntax(Args, out Matches, out Syntax))
-                        {
-                            PreviouslyMatches = Matches;
-                            Syntax.GetValueOrDefault().AssembleInstruction();
-                        }
-                        else
-                        {
-                            throw new Exception("Invalid arguments syntax.");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Invalid mnemonic.");
-                    }
-                }
+                Console.WriteLine(ErrorOutput.Pop());
             }
-            Output.Close();
+
+            Console.ResetColor();
+        }
+
+        public static void LogError(Int32 Line, String Format, params object[] Arguments)
+        {
+            String Prefix = Line > 0 ? String.Format("Linha ({0}): ", Line) : "";
+            ErrorOutput.Push(Prefix + String.Format(Format, Arguments));
         }
     }
 }
