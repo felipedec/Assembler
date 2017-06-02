@@ -154,7 +154,7 @@ namespace Assembler
         {
             for (Line = 0; Line < InputLines.Length; Line++)
             {
-                if (InputLines[Line].bIsLabel)
+                if (InputLines[Line].bIsLabel || String.IsNullOrWhiteSpace(InputLines[Line]))
                 {
                     continue;
                 }
