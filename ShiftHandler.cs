@@ -4,7 +4,7 @@ namespace Assembler
 {
     using static AssemblerCore;
 
-    [Mnemonic("desq"), Mnemonic("ddir")]
+    [Mnemonic("desq", "ddir")]
     public sealed class ShiftHandler : MnemonicHandler
     {
         public override ArgumentsPattern[] GetArgumentsPatterns()

@@ -10,15 +10,15 @@ namespace Assembler
     {
         #region Fields
 
-        public readonly string Mnemonic;
+        public readonly string[] Mnemonics;
 
         #endregion Fields
 
         #region Constructors
 
-        public MnemonicAttribute(string InMnemonic)
+        public MnemonicAttribute(params string[] InMnemonics)
         {
-            Mnemonic = InMnemonic.ToLower();
+            Mnemonics = InMnemonics;
         }
 
         #endregion Constructors

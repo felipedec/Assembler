@@ -18,7 +18,8 @@ namespace Assembler
         /// <summary>
         /// Proporciona informações adicionais para as linhas
         /// podendo garantir que a mesma linha não precise
-        /// ser montada mais de uma vez, e
+        /// ser montada mais de uma vez e algumas informações
+        /// extras
         /// </summary>
         public struct InputLine
         {
@@ -127,9 +128,6 @@ namespace Assembler
         /// </summary>
         public static Int32 Line { get; private set; }
 
-
-        public static Boolean bUseLineNumber = true;
-
         #endregion Properties
 
 
@@ -164,8 +162,8 @@ namespace Assembler
 
             // Aclopar todo conteudo de saida.
             StringBuilder OutputContent = new StringBuilder();
-            foreach (String Line in OutputInstructions)
-                OutputContent.Append(Line + Environment.NewLine);
+            foreach (String Instruction in OutputInstructions)
+                OutputContent.Append(Instruction + Environment.NewLine);
 
         
             Output.Write(OutputContent);
@@ -222,8 +220,13 @@ namespace Assembler
                         InputLines[Current.Line].bHasBeenAssembled = true;
                         InputLines[Current.Line].CachedResult = Current.InstructionBuffer;
 
+                        OutputInstructions.Add("! " + InputLines[Current.Line]);
                         OutputInstructions.Add(Current.InstructionBuffer);
                     }
+                } 
+                else
+                {
+                    LogError(Line + 1, "\'{0}\' não aceita suporta esse formata de argumentos.", Mnemonic);
                 }
             }
             else
@@ -247,7 +250,7 @@ namespace Assembler
         /// <param name="LabelName">Nome do rotúlo</param>
         public static void Goto(String LabelName)
         {
-            Line = Labels[LabelName];
+            Jump(Labels[LabelName]);
         }
 
         /// <summary>
@@ -272,23 +275,23 @@ namespace Assembler
             var Lines = File.ReadAllLines(InputPath);
 
             InputLines = new InputLine[Lines.Length];
-            Labels = new Dictionary<string, int>();
+            Labels = new Dictionary<String, Int32>();
 
             for (Line = 0; Line < Lines.Length; Line++)
             {
-                Current = new AssemblyEvent(Line, AssemblyEventType.Label);
-
                 InputLines[Line] = Lines[Line];
                 var Match = LabelRegex.Match(Lines[Line]);
 
                 if (Match.Success)
                 {
+                    Current = new AssemblyEvent(Line, AssemblyEventType.Label);
+
                     InputLines[Line].bIsLabel = true;
 
                     Labels.Add(Match.Groups[1].Value, Line);
+                    Previously = Current;
                 }
 
-                Previously = Current;
             }
         }
 
@@ -301,11 +304,18 @@ namespace Assembler
 
             foreach (var Type in Assembly.GetExecutingAssembly().GetTypes())
             {
+                if (!Type.IsSubclassOf(typeof(MnemonicHandler)))
+                {
+                    continue;
+                }
+
                 foreach (var Attr in (MnemonicAttribute[])Type.GetCustomAttributes(typeof(MnemonicAttribute), false))
-                    Mnemonics.Add(Attr.Mnemonic, (MnemonicHandler)Activator.CreateInstance(Type));
+                { 
+                    foreach (String Mnemonic in Attr.Mnemonics)
+                        Mnemonics.Add(Mnemonic, (MnemonicHandler)Activator.CreateInstance(Type));
+                }
             }
         }
-
 
         #endregion Methods
     }

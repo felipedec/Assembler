@@ -140,10 +140,9 @@ namespace Assembler
         {
             Boolean bMustAppendLineNumber = !Current.bWasInstrucitonAssembled;
 
-            Int32 WordBitsLength = (bUseLineNumber ? 32 : 24);
-            if (Current.InstructionBuffer.Length % WordBitsLength == 0 && Current.bWasInstrucitonAssembled)
+            if (Current.InstructionBuffer.Length % 32 == 0 && Current.bWasInstrucitonAssembled)
             {
-                bMustAppendLineNumber = bUseLineNumber;
+                bMustAppendLineNumber = true;
 
                 Current.InstructionCount++;
                 Current.InstructionBuffer += Environment.NewLine;
@@ -154,8 +153,8 @@ namespace Assembler
 
             if (bMustAppendLineNumber)
             {
-                Int32 Line = Current.InstructionCount == 1 ? Current.Line : 0;
-                Current.InstructionBuffer += IntToBinaryPadded(Line, kArgumentBitsLength);
+                    Int32 Line = Current.InstructionCount == 1 ? Current.Line : 0xFF;
+                    Current.InstructionBuffer += IntToBinaryPadded(Line, kArgumentBitsLength);
             }
 
             Current.bWasInstrucitonAssembled = true;
