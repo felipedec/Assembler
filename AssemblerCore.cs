@@ -187,10 +187,14 @@ namespace Assembler
 
             if (Match.Success)
             {
-                Current = new AssemblyEvent(Line, AssemblyEventType.Mnemonic);
-                 
                 var Groups = Match.Groups;
-                AssembleMnemonic(Groups["Mnemonic"].Value, Groups["Args"].Value);
+                String Mnemonic = Groups["Mnemonic"].Value;
+
+                Current = new AssemblyEvent(Line, AssemblyEventType.Mnemonic);
+
+                Current.Mnemonic = Mnemonic;
+
+                AssembleMnemonic(Mnemonic, Groups["Args"].Value);
 
                 Previously = Current;
             }

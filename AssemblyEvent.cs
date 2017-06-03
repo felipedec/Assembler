@@ -64,6 +64,12 @@ namespace Assembler
         /// </summary>
         public Int32 InstructionCount;
 
+        /// <summary>
+        /// Caso este evento esteja montando a instrução
+        /// de um mnemonico ele ficara armazenado aqui
+        /// </summary>
+        public String Mnemonic;
+
         #endregion Fields
 
 
