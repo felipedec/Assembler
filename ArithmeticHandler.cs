@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace Assembler
 {
     using static AssemblerCore;
@@ -14,10 +13,10 @@ namespace Assembler
         {
             return new ArgumentsPattern[]
             {
-                CreateArgumentsPattern( new String[] { "R(?<FirstRegister>[0-9]+)", "R(?<SecondRegister>[0-9]+)" }, () => { WriteRegisterRegister("FirstRegister", "SecondRegister", 0); }),
-                CreateArgumentsPattern( new String[] { "R(?<FirstRegister>[0-9]+)", "@R(?<SecondRegister>[0-9]+)" }, () => { WriteRegisterRegister("FirstRegister", "SecondRegister", 1); }),
-                CreateArgumentsPattern( new String[] { "R(?<Register>[0-9]+)", "#(?<Decimal>[0-9]+)" }, () => { WriteRegisterConstantValue("Register", "Decimal", 2, 10); }),
-                CreateArgumentsPattern( new String[] { "R(?<Register>[0-9]+)", "(?<Binary>[01]+)" }, () => { WriteRegisterConstantValue("Register", "Binary", 4, 2); }),
+                CreateArgumentsPattern(new String[] { "R(?<FirstRegister>[0-9]+)", "R(?<SecondRegister>[0-9]+)" }, () => { WriteRegisterRegister("FirstRegister", "SecondRegister", 0); }),
+                CreateArgumentsPattern(new String[] { "R(?<FirstRegister>[0-9]+)", "@R(?<SecondRegister>[0-9]+)" }, () => { WriteRegisterRegister("FirstRegister", "SecondRegister", 1); }),
+                CreateArgumentsPattern(new String[] { "R(?<Register>[0-9]+)", "#(?<Decimal>[0-9]+)" }, () => { WriteRegisterConstantValue("Register", "Decimal", 2, 10); }),
+                CreateArgumentsPattern(new String[] { "R(?<Register>[0-9]+)", "(?<Binary>[01]+)" }, () => { WriteRegisterConstantValue("Register", "Binary", 4, 2); }),
             };
         }
 

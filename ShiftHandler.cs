@@ -13,11 +13,10 @@ namespace Assembler
             {
                 CreateArgumentsPattern(new String[] { "R(?<Register>[0-9]+)" }, () =>
                 {
-                    Int32 RegisterIndex = GetIntArgument("Register");
                     Boolean bIsLeftShift = AssemblyEvent.Current.Mnemonic.Equals("desq");
 
                     Write(bIsLeftShift ? 24 : 25, kInstructionAddressBitsLength);
-                    Write(RegisterIndex * kRegisterBitsLength, kArgumentBitsLength);
+                    Write(GetIntArgument("Register") * kRegisterBitsLength, kArgumentBitsLength);
                     Write(0xFFFFFF, kArgumentBitsLength);
                 })
             };

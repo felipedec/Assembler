@@ -47,12 +47,12 @@ namespace Assembler
 
             public static implicit operator String(InputLine InputLine)
             {
-                return InputLine.Raw;
+                return InputLine.Raw.Trim();
             }
 
             public static implicit operator InputLine(String Raw)
             {
-                return new InputLine() { Raw = Raw };
+                return new InputLine() { Raw = Raw.Trim() };
             }
         }
 
@@ -150,7 +150,9 @@ namespace Assembler
         /// </summary>
         public static void Assemble()
         {
-            for (Line = 0; Line < InputLines.Length; Line++)
+            Goto("MAIN");
+
+            for (; Line < InputLines.Length; Line++)
             {
                 if (InputLines[Line].bIsLabel || String.IsNullOrWhiteSpace(InputLines[Line]))
                 {
@@ -160,11 +162,9 @@ namespace Assembler
                 AssembleCurrentLine();
             }
 
-            // Aclopar todo conteudo de saida.
             StringBuilder OutputContent = new StringBuilder();
             foreach (String Instruction in OutputInstructions)
                 OutputContent.Append(Instruction + Environment.NewLine);
-
         
             Output.Write(OutputContent);
             Output.Close();
@@ -220,7 +220,9 @@ namespace Assembler
                         InputLines[Current.Line].bHasBeenAssembled = true;
                         InputLines[Current.Line].CachedResult = Current.InstructionBuffer;
 
-                        OutputInstructions.Add("! " + InputLines[Current.Line]);
+                        String Comment = String.Format("// Linha {0}: {1}", Current.Line, InputLines[Current.Line].Raw);
+
+                        OutputInstructions.Add(Comment);
                         OutputInstructions.Add(Current.InstructionBuffer);
                     }
                 } 
@@ -269,7 +271,7 @@ namespace Assembler
         /// <param name="OutputPath">Arquivo de saída</param>
         public static void SetIO(String InputPath, String OutputPath)
         {
-            var LabelRegex = new Regex(@"^\s*(?<LabelName>[a-z0-9]+)\s*:\s*$", kRegexOption);
+            var LabelRegex = new Regex(@"^\s*(?<LabelName>[a-z0-9_]+)\s*:\s*$", kRegexOption);
 
             Output = new StreamWriter(OutputPath);
             var Lines = File.ReadAllLines(InputPath);

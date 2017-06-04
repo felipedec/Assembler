@@ -13,7 +13,7 @@ namespace Assembler
         {
             return new ArgumentsPattern[]
             {
-                CreateArgumentsPattern(new String[] { "(?<Label>[a-zA-Z][a-zA-Z0-9]*)" }, () =>
+                CreateArgumentsPattern(new String[] { "(?<Label>[a-z0-9_]+)" }, () =>
                 {
                     Goto(GetArgument("Label"));
                 })
