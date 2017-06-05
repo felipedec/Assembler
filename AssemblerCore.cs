@@ -8,7 +8,8 @@ using System.Text;
 namespace Assembler
 {
     using static AssemblyEvent;
-    using static Assembler;
+    using static AssemblyOptions;
+    using static Logger;
 
     /// <summary>
     /// Resposável por fazer a montagem
@@ -114,11 +115,6 @@ namespace Assembler
         public static Dictionary<String, Int32> Labels { get; private set; }
 
         /// <summary>
-        /// Stream para o arquivo de saída
-        /// </summary>
-        public static StreamWriter Output { get; private set; }
-
-        /// <summary>
         /// Lista das linhas geradas pelo montador
         /// </summary>
         public static List<String> OutputInstructions { get; private set; }
@@ -150,6 +146,8 @@ namespace Assembler
         /// </summary>
         public static void Assemble()
         {
+            ExtractInputLines();
+
             Goto("MAIN");
 
             for (; Line < InputLines.Length; Line++)
@@ -162,18 +160,31 @@ namespace Assembler
                 AssembleCurrentLine();
             }
 
+            SaveOutput();
+        }
+
+        /// <summary>
+        /// Salvar arquivo de saída
+        /// </summary>
+        private static void SaveOutput()
+        {
             StringBuilder OutputContent = new StringBuilder();
             foreach (String Instruction in OutputInstructions)
                 OutputContent.Append(Instruction + Environment.NewLine);
-        
-            Output.Write(OutputContent);
-            Output.Close();
+            try
+            {
+                File.WriteAllText(Options.OutputFile, OutputContent.ToString());
+            }
+            catch (Exception e)
+            {
+                LogError(0, e.Message);
+            }
         }
 
         /// <summary>
         /// Montar linha atual
         /// </summary>
-        public static void AssembleCurrentLine()
+        private static void AssembleCurrentLine()
         {
             // Se a linha já foi montada então só adicionar a instrução já gerada na saída.
             if (InputLines[Line].bHasBeenAssembled)
@@ -203,7 +214,7 @@ namespace Assembler
         /// </summary>
         /// <param name="Mnemonic">Mnemonico</param>
         /// <param name="Args">Argumentos</param>
-        public static void AssembleMnemonic(String Mnemonic, String Args)
+        private static void AssembleMnemonic(String Mnemonic, String Args)
         {
             MnemonicHandler MnemonicHandler;
             if (Mnemonics.TryGetValue(Mnemonic.ToLower(), out MnemonicHandler))
@@ -220,7 +231,7 @@ namespace Assembler
                         InputLines[Current.Line].bHasBeenAssembled = true;
                         InputLines[Current.Line].CachedResult = Current.InstructionBuffer;
 
-                        String Comment = String.Format("// Linha {0}: {1}", Current.Line, InputLines[Current.Line].Raw);
+                        String Comment = String.Format("// Line {0}: {1}", Current.Line, InputLines[Current.Line].Raw);
 
                         OutputInstructions.Add(Comment);
                         OutputInstructions.Add(Current.InstructionBuffer);
@@ -228,12 +239,12 @@ namespace Assembler
                 } 
                 else
                 {
-                    LogError(Line + 1, "\'{0}\' não aceita suporta esse formata de argumentos.", Mnemonic);
+                    LogError(Line + 1, "\'{0}\' doesn't support this arguments pattern.", Mnemonic);
                 }
             }
             else
             {
-                LogError(Line + 1, "\'{0}\' comando inválido.", Mnemonic);
+                LogError(Line + 1, "\'{0}\' invalid mnemonic.", Mnemonic);
             }
         }
 
@@ -273,16 +284,12 @@ namespace Assembler
         }
 
         /// <summary>
-        /// Definir arquivo de entra e saida do montador
+        /// Extrair detalhes das linhas do arquivo de entrada
         /// </summary>
-        /// <param name="InputPath">Arquivo de entrada</param>
-        /// <param name="OutputPath">Arquivo de saída</param>
-        public static void SetIO(String InputPath, String OutputPath)
+        private static void ExtractInputLines()
         {
             var LabelRegex = new Regex(@"^\s*(?<LabelName>[a-z0-9_]+)\s*:\s*$", kRegexOption);
-            var Lines = File.ReadAllLines(InputPath);
-
-            Output = new StreamWriter(OutputPath);
+            var Lines = File.ReadAllLines(Options.InputFile);
 
             InputLines = new InputLine[Lines.Length];
             Labels = new Dictionary<String, Int32>();

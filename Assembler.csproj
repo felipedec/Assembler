@@ -51,9 +51,11 @@
     <Compile Include="ArithmeticHandler.cs" />
     <Compile Include="AssemblerCore.cs" />
     <Compile Include="AssemblyEvent.cs" />
+    <Compile Include="AssemblyOptions.cs" />
     <Compile Include="CallHandler.cs" />
     <Compile Include="HaltHandler.cs" />
     <Compile Include="JumpHandler.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MnemonicAttribute.cs" />
     <Compile Include="MnemonicHandler.cs" />
     <Compile Include="ArgumentsPattern.cs" />

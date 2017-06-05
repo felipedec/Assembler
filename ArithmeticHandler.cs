@@ -2,6 +2,7 @@
 
 namespace Assembler
 {
+    using System.IO;
     using static AssemblerCore;
 
     [Mnemonic("add", "sub", "mult", "div")]

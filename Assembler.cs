@@ -1,24 +1,63 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Assembler
 {
-    class Assembler
-    {
-        private static Stack<String> ErrorOutput = new Stack<string>();
+    using static AssemblyOptions;
+    using static AssemblerCore;
+    using static Logger;
 
-        private const String kTestInputFile = "..\\..\\Testing\\input.txt";
-        private const String kTestOutputFile = "..\\..\\Testing\\output.txt";
+    static class Assembler
+    {
+        #region Methods
 
         static void Main(String[] Args)
         {
-            AssemblerCore.SetIO(kTestInputFile, kTestOutputFile);
-            AssemblerCore.Assemble();
+            Console.Title = "11059NULLIUSINVERBA";
+
+            Validate(Args);
+            Assemble();
+            PrintIOIfNeeded();
+            PrintErrors();
+
+            Exit();
+        }
+
+        /// <summary>
+        /// Validar linha de comando e arquivos de entrada
+        /// </summary>
+        static void Validate(String[] Args)
+        {
+            if (!GetOptions(Args))
+            {
+                Exit(1);
+            }
+
+            if (!File.Exists(Options.InputFile))
+            {
+                Console.Write("Invalid input file.");
+                Exit(1);
+            }
+        }
+
+        /// <summary>
+        /// Finalizar o processo
+        /// </summary>
+        static void Exit(Int32 ExitCode = 0)
+        {
+            if (Environment.UserInteractive)
+                Console.ReadKey();
+            Environment.Exit(ExitCode);
+        }
+
+        static void PrintIOIfNeeded()
+        {
+            if (!Options.bPrintInputAndOutput)
+                return;
 
 
-            Console.WriteLine("Arquivo de entrada:");
-            String[] Lines = File.ReadAllLines(kTestInputFile);
+            Console.WriteLine("Input File Content:");
+            String[] Lines = File.ReadAllLines(Options.InputFile);
 
             for (int Index = 1; Index <= Lines.Length; Index++)
             {
@@ -31,37 +70,12 @@ namespace Assembler
 
             Console.ResetColor();
 
-            Console.WriteLine("Arquivo de saída:");
+            Console.WriteLine("Output File Content:");
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(File.ReadAllText(kTestOutputFile));
+            Console.WriteLine(File.ReadAllText(Options.OutputFile));
 
-            PrintOutputErrors();
-
-            Console.ReadKey();
         }
 
-        private static void PrintOutputErrors()
-        {
-            if (ErrorOutput.Count == 0)
-                return;
-
-            Console.WriteLine("Erros na Montagem:");
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.DarkRed;
-
-            while(ErrorOutput.Count > 0)
-            {
-                Console.WriteLine(ErrorOutput.Pop());
-            }
-
-            Console.ResetColor();
-        }
-
-        public static void LogError(Int32 Line, String Format, params object[] Arguments)
-        {
-            String Prefix = Line > 0 ? String.Format("Linha ({0}): ", Line) : "";
-            ErrorOutput.Push(Prefix + String.Format(Format, Arguments));
-        }
+        #endregion Methods
     }
 }
