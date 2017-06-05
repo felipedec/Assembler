@@ -1,13 +1,13 @@
+LABEL:
+	add r1 #8
+	add r2 #16
+	add r3 #32
+	add r4 r1
+	halt
 MAIN:
 	add r0 101
 	call LABEL_1
 	add r3 #300
-LABEL:
-	add r1 #8
-	add r1 #16
-	add r1 #32
-	add r4 r1
-	halt
 LABEL_1:
 	add r0 #1
 	add r3 10101010

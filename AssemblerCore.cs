@@ -39,7 +39,7 @@ namespace Assembler
             public String Raw;
 
             /// <summary>
-            /// Caso já tenha sido montado, o resultado sera quardado
+            /// Caso já tenha sido montado, o resultado sera guardado
             /// para que possa ser reutilizado se necessário 
             /// </summary>
             public String CachedResult;
@@ -47,7 +47,7 @@ namespace Assembler
 
             public static implicit operator String(InputLine InputLine)
             {
-                return InputLine.Raw.Trim();
+                return InputLine.Raw;
             }
 
             public static implicit operator InputLine(String Raw)
@@ -211,7 +211,7 @@ namespace Assembler
                 // Evitar que seja nulo 
                 Args = Args == null ? String.Empty : Args;
 
-                if (MnemonicHandler.TryGetValidArgumentsPattern(Args, out Current.Matches, out Current.ArgumentsPattern))
+                if (MnemonicHandler.TryGetValidArgumentsPattern(Args, out Current.Matches, ref Current.ArgumentsPattern))
                 {
                     Current.ArgumentsPattern.AssembleInstruction();
 
@@ -252,7 +252,15 @@ namespace Assembler
         /// <param name="LabelName">Nome do rotúlo</param>
         public static void Goto(String LabelName)
         {
-            Jump(Labels[LabelName]);
+            Int32 LabelLine;
+            if(Labels.TryGetValue(LabelName, out LabelLine))
+            {
+                Jump(LabelLine);
+                return;
+            }
+
+            LogError(Line + 1, "Label \'{0}\' not found.");
+            GotoEndOfFile();
         }
 
         /// <summary>
@@ -272,9 +280,9 @@ namespace Assembler
         public static void SetIO(String InputPath, String OutputPath)
         {
             var LabelRegex = new Regex(@"^\s*(?<LabelName>[a-z0-9_]+)\s*:\s*$", kRegexOption);
+            var Lines = File.ReadAllLines(InputPath);
 
             Output = new StreamWriter(OutputPath);
-            var Lines = File.ReadAllLines(InputPath);
 
             InputLines = new InputLine[Lines.Length];
             Labels = new Dictionary<String, Int32>();

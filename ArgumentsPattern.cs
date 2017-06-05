@@ -5,7 +5,7 @@ namespace Assembler
 {
     /// <summary>
     /// Padrão de argumentos, utilizado por <see cref="MnemonicHandler" />
-    /// para definir quaís os formatos de argumentos são aceitáveis pelo comando.
+    /// para definir quaís os formatos de argumentos são aceitáveis pelo comando
     /// </summary>
     public struct ArgumentsPattern
     {
@@ -56,10 +56,8 @@ namespace Assembler
         /// <param name="Args">Argumentos</param>
         /// <param name="OutMatches">Combinão de cada argumento</param>
         /// <returns></returns>
-        public bool Match(string[] Args, out Match[] OutMatches)
+        public bool Match(string[] Args, ref Match[] OutMatches)
         {
-            OutMatches = null;
-
             if (Args.Length != ArgumentsCount)
                 return false;
 
@@ -67,9 +65,6 @@ namespace Assembler
 
             for (int j = 0; j < Args.Length; j++)
             {
-                if (string.IsNullOrEmpty(Args[j]))
-                    continue;
-
                 TempMatches[j] = ArgumentsRegExpressions[j].Match(Args[j]);
 
                 if (!TempMatches[j].Success)

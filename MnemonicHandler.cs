@@ -65,7 +65,7 @@ namespace Assembler
         /// Retorna verdadeiro caso encontre uma sintaxe que combina
         /// com os argumentos passados, caso contrário retorna falso
         /// </returns>
-        public bool TryGetValidArgumentsPattern(string Args, out Match[] OutMatches, out ArgumentsPattern OutMatchedPattern)
+        public bool TryGetValidArgumentsPattern(string Args, out Match[] OutMatches, ref ArgumentsPattern OutMatchedPattern)
         {
             OutMatches = null;
 
@@ -73,13 +73,12 @@ namespace Assembler
 
             for (int Index = 0; Index < SupportedArgumentsPattern.Length; Index++)
             {
-                if(SupportedArgumentsPattern[Index].Match(ArgsArray, out OutMatches))
+                if(SupportedArgumentsPattern[Index].Match(ArgsArray, ref OutMatches))
                 {
                     OutMatchedPattern = SupportedArgumentsPattern[Index];
                     return true;
                 }
             }
-            OutMatchedPattern = default(ArgumentsPattern);
             return false;
         }
         /// <summary>
