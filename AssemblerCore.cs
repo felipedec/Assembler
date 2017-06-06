@@ -80,6 +80,11 @@ namespace Assembler
         public const Int32 kMaxArgumentValue = 0xFF;
 
         /// <summary>
+        /// Label de entrada
+        /// </summary>
+        public const String kEntryLabelName = "MAIN";
+
+        /// <summary>
         /// Opções de uso de qualquer expressão regular deste projeto
         /// </summary>
         public const RegexOptions kRegexOption = RegexOptions.Compiled | RegexOptions.IgnoreCase;
@@ -124,6 +129,11 @@ namespace Assembler
         /// </summary>
         public static Int32 Line { get; private set; }
 
+        /// <summary>
+        /// A montagem foi bem sucedida?
+        /// </summary>
+        public static Boolean bSuccessed = true;
+
         #endregion Properties
 
 
@@ -146,16 +156,17 @@ namespace Assembler
         /// </summary>
         public static void Assemble()
         {
-            ExtractInputLines();
+            FindLabels();
 
-            Goto("MAIN");
+            Goto(kEntryLabelName);
 
             for (; Line < InputLines.Length; Line++)
             {
+                if(!bSuccessed)
+                    return;
+
                 if (InputLines[Line].bIsLabel || String.IsNullOrWhiteSpace(InputLines[Line]))
-                {
                     continue;
-                }
 
                 AssembleCurrentLine();
             }
@@ -171,13 +182,14 @@ namespace Assembler
             StringBuilder OutputContent = new StringBuilder();
             foreach (String Instruction in OutputInstructions)
                 OutputContent.Append(Instruction + Environment.NewLine);
+
             try
             {
                 File.WriteAllText(Options.OutputFile, OutputContent.ToString());
             }
             catch (Exception e)
             {
-                LogError(0, e.Message);
+                LogFatalError(0, e.Message);
             }
         }
 
@@ -199,13 +211,17 @@ namespace Assembler
                 var Groups = Match.Groups;
                 String Mnemonic = Groups["Mnemonic"].Value;
 
-                Current = new AssemblyEvent(Line, AssemblyEventType.Mnemonic);
+                IndentLevel++;
 
+                Current = new AssemblyEvent(Line, AssemblyEventType.Mnemonic);
                 Current.Mnemonic = Mnemonic;
 
                 AssembleMnemonic(Mnemonic, Groups["Args"].Value);
 
                 Previously = Current;
+
+                IndentLevel--;
+
             }
         }
 
@@ -224,27 +240,32 @@ namespace Assembler
 
                 if (MnemonicHandler.TryGetValidArgumentsPattern(Args, out Current.Matches, ref Current.ArgumentsPattern))
                 {
+                    IndentLevel++;
+
                     Current.ArgumentsPattern.AssembleInstruction();
+
+                    IndentLevel--;
 
                     if (Current.bWasInstrucitonAssembled)
                     {
+
                         InputLines[Current.Line].bHasBeenAssembled = true;
                         InputLines[Current.Line].CachedResult = Current.InstructionBuffer;
 
-                        String Comment = String.Format("// Line {0}: {1}", Current.Line, InputLines[Current.Line].Raw);
-
-                        OutputInstructions.Add(Comment);
+                        //String Comment = String.Format("// Line {0}: {1}", Current.Line, InputLines[Current.Line].Raw);
+                        //OutputInstructions.Add(Comment);
+ 
                         OutputInstructions.Add(Current.InstructionBuffer);
                     }
                 } 
                 else
                 {
-                    LogError(Line + 1, "\'{0}\' doesn't support this arguments pattern.", Mnemonic);
+                    LogFatalError(Line + 1, "\'{0}\' doesn't support this arguments pattern.", Mnemonic);
                 }
             }
             else
             {
-                LogError(Line + 1, "\'{0}\' invalid mnemonic.", Mnemonic);
+                LogFatalError(Line + 1, "\'{0}\' invalid mnemonic.", Mnemonic);
             }
         }
 
@@ -270,7 +291,7 @@ namespace Assembler
                 return;
             }
 
-            LogError(Line + 1, "Label \'{0}\' not found.");
+            LogFatalError(Line + 1, "Label \'{0}\' not found.");
             GotoEndOfFile();
         }
 
@@ -284,15 +305,19 @@ namespace Assembler
         }
 
         /// <summary>
-        /// Extrair detalhes das linhas do arquivo de entrada
+        /// Procurar labels no arquivo de entrada
         /// </summary>
-        private static void ExtractInputLines()
+        private static void FindLabels()
         {
             var LabelRegex = new Regex(@"^\s*(?<LabelName>[a-z0-9_]+)\s*:\s*$", kRegexOption);
             var Lines = File.ReadAllLines(Options.InputFile);
 
             InputLines = new InputLine[Lines.Length];
             Labels = new Dictionary<String, Int32>();
+
+            Boolean bEntryLabelFound = false;
+
+            IndentLevel++;
 
             for (Line = 0; Line < Lines.Length; Line++)
             {
@@ -302,13 +327,25 @@ namespace Assembler
                 if (Match.Success)
                 {
                     Current = new AssemblyEvent(Line, AssemblyEventType.Label);
+                    String Label = Match.Groups[1].Value;
+
+                    Boolean bIsEntryLabel = Label.Equals(kEntryLabelName);
+
+                    bEntryLabelFound |= bIsEntryLabel;
 
                     InputLines[Line].bIsLabel = true;
 
-                    Labels.Add(Match.Groups[1].Value, Line);
+                    Labels.Add(Label, Line);
+
                     Previously = Current;
                 }
+            }
 
+            IndentLevel--;
+
+            if(!bEntryLabelFound)
+            {
+                LogFatalError(0, "\'{0}\' label not found.", kEntryLabelName);
             }
         }
 
@@ -317,6 +354,8 @@ namespace Assembler
         /// </summary>
         private static void FindMnemonicHandlers()
         {
+            IndentLevel++;
+
             Mnemonics = new Dictionary<String, MnemonicHandler>();
 
             foreach (var Type in Assembly.GetExecutingAssembly().GetTypes())
@@ -327,11 +366,16 @@ namespace Assembler
                 }
 
                 foreach (var Attr in (MnemonicAttribute[])Type.GetCustomAttributes(typeof(MnemonicAttribute), false))
-                { 
+                {
                     foreach (String Mnemonic in Attr.Mnemonics)
-                        Mnemonics.Add(Mnemonic, (MnemonicHandler)Activator.CreateInstance(Type));
+                    {
+                        MnemonicHandler MnemonicHandler = (MnemonicHandler)Activator.CreateInstance(Type);
+                        Mnemonics.Add(Mnemonic, MnemonicHandler);
+                    }
                 }
             }
+
+            IndentLevel--;
         }
 
         #endregion Methods

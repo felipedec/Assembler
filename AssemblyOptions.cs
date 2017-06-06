@@ -19,12 +19,6 @@ namespace Assembler
         #region Properties
 
         /// <summary>
-        /// Saída detalhada
-        /// </summary>
-        [Option('v', "verbose", DefaultValue = false, HelpText = "Verbose mode.")]
-        public Boolean bUseVerbose { get; set; }
-
-        /// <summary>
         /// Caminho do arquivo de entrada
         /// </summary>
         [Option('i', "input", Required = true, HelpText = "Input File.")]

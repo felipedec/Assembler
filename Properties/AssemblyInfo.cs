@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("11059NULLIUSINVERBA")]
+[assembly: AssemblyTitle("Asteroid 11059")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("11059NULLIUSINVERBA")]
+[assembly: AssemblyProduct("Asteroid 11059")]
 [assembly: AssemblyCopyright("Copyright © 2017 Felipe Marques")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

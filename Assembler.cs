@@ -3,9 +3,8 @@ using System.IO;
 
 namespace Assembler
 {
-    using static AssemblyOptions;
-    using static AssemblerCore;
     using static Logger;
+    using static AssemblyOptions;
 
     static class Assembler
     {
@@ -13,14 +12,18 @@ namespace Assembler
 
         static void Main(String[] Args)
         {
-            Console.Title = "11059NULLIUSINVERBA";
+            Console.Title = "Asteroid 11059";
 
+            // Validar opções de entrada
             Validate(Args);
-            Assemble();
-            PrintIOIfNeeded();
-            PrintErrors();
 
-            Exit();
+            // Começar processo de montagem
+            AssemblerCore.Assemble();
+
+            // Exibir conteúdo dos arquivos de entrada e saída caso requisitado
+            PrintIOIfNeeded();
+
+            Exit(AssemblerCore.bSuccessed ? 1 : 0);
         }
 
         /// <summary>
@@ -35,8 +38,7 @@ namespace Assembler
 
             if (!File.Exists(Options.InputFile))
             {
-                Console.Write("Invalid input file.");
-                Exit(1);
+               LogFatalError(0, "Invalid input file.");
             }
         }
 
@@ -48,32 +50,6 @@ namespace Assembler
             if (Environment.UserInteractive)
                 Console.ReadKey();
             Environment.Exit(ExitCode);
-        }
-
-        static void PrintIOIfNeeded()
-        {
-            if (!Options.bPrintInputAndOutput)
-                return;
-
-
-            Console.WriteLine("Input File Content:");
-            String[] Lines = File.ReadAllLines(Options.InputFile);
-
-            for (int Index = 1; Index <= Lines.Length; Index++)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.Write(Index.ToString().PadLeft(3, ' ') + " ");
-
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine(Lines[Index - 1]);
-            }
-
-            Console.ResetColor();
-
-            Console.WriteLine("Output File Content:");
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(File.ReadAllText(Options.OutputFile));
-
         }
 
         #endregion Methods
