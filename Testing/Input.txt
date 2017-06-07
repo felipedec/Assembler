@@ -9,6 +9,7 @@ MAIN:
 	call LABEL_1
 	add r3 #300
 LABEL_1:
+	jmp 1
 	add r0 #1
 	add r3 10101010
 	call LABEL

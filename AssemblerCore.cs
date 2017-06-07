@@ -275,6 +275,7 @@ namespace Assembler
         /// <param name="TargetLine">Número da linha</param>
         public static void Jump(Int32 TargetLine)
         {
+            Console.WriteLine("line: " + TargetLine);
             Line = TargetLine;
         }
 

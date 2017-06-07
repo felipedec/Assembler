@@ -11,7 +11,7 @@ namespace Assembler
         {
             return new ArgumentsPattern[]
             {
-                CreateArgumentsPattern(new String[] { "(?<LineNumber>[0-9]+)" }, () => { Jump(GetIntArgument("LineNumber")); })
+                CreateArgumentsPattern(new [] { "(?<LineNumber>[0-9]+)" }, () => { Jump(GetIntArgument("LineNumber") - 2); })
             };
         }
     }
