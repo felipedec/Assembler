@@ -3,6 +3,7 @@
 namespace Assembler
 {
     using static AssemblerCore;
+    using static AssemblyEvent;
 
     [Mnemonic("desq", "ddir")]
     public sealed class ShiftHandler : MnemonicHandler
@@ -13,9 +14,7 @@ namespace Assembler
             {
                 CreateArgumentsPattern(new String[] { "R(?<Register>[0-9]+)" }, () =>
                 {
-                    Boolean bIsLeftShift = AssemblyEvent.Current.Mnemonic.Equals("desq");
-
-                    Write(bIsLeftShift ? 24 : 25, kInstructionAddressBitsLength);
+                    Write(Current.Mnemonic.Equals("desq") ? 24 : 25, kInstructionAddressBitsLength);
                     Write(GetIntArgument("Register") * kRegisterBitsLength, kArgumentBitsLength);
                     Write(0xFFFFFF, kArgumentBitsLength);
                 })

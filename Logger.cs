@@ -37,7 +37,7 @@ namespace Assembler
         /// </summary>
         public static void Log(String Format, params object[] Arguments)
         {
-            Console.WriteLine(new String(' ', 1 << IndentLevel) + String.Format(Format, Arguments));
+            Console.WriteLine(new String(' ', 1 << IndentLevel) + Format, Arguments);
         }
 
         /// <summary>

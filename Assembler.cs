@@ -12,13 +12,20 @@ namespace Assembler
 
         static void Main(String[] Args)
         {
-            Console.Title = "Asteroid 11059";
+            Console.Title = "Observatorul Palomar 11059";
 
             // Validar opções de entrada
             Validate(Args);
 
-            // Começar processo de montagem
-            AssemblerCore.Assemble();
+            try
+            {
+                // Começar processo de montagem
+                AssemblerCore.Assemble();
+            }
+            catch(Exception e)
+            {
+                LogFatalError(0, e.Message);
+            }
 
             // Exibir conteúdo dos arquivos de entrada e saída caso requisitado
             PrintIOIfNeeded();

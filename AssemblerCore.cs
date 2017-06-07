@@ -317,8 +317,6 @@ namespace Assembler
 
             Boolean bEntryLabelFound = false;
 
-            IndentLevel++;
-
             for (Line = 0; Line < Lines.Length; Line++)
             {
                 InputLines[Line] = Lines[Line];
@@ -329,9 +327,7 @@ namespace Assembler
                     Current = new AssemblyEvent(Line, AssemblyEventType.Label);
                     String Label = Match.Groups[1].Value;
 
-                    Boolean bIsEntryLabel = Label.Equals(kEntryLabelName);
-
-                    bEntryLabelFound |= bIsEntryLabel;
+                    bEntryLabelFound |= Label.Equals(kEntryLabelName);
 
                     InputLines[Line].bIsLabel = true;
 
@@ -340,8 +336,6 @@ namespace Assembler
                     Previously = Current;
                 }
             }
-
-            IndentLevel--;
 
             if(!bEntryLabelFound)
             {
