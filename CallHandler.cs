@@ -7,19 +7,12 @@ namespace Assembler
     [Mnemonic("call")]
     public sealed class CallHandler : MnemonicHandler
     {
-        #region Methods
-
         public override ArgumentsPattern[] GetArgumentsPatterns()
         {
             return new ArgumentsPattern[]
             {
-                CreateArgumentsPattern(new String[] { "(?<Label>[a-z0-9_]+)" }, () =>
-                {
-                    Goto(GetArgument("Label"));
-                })
+                CreateArgumentsPattern(new String[] { "(?<Label>[a-z0-9_]+)" }, () => { Goto(GetArgument("Label")); })
             };
         }
-
-        #endregion Methods
     }
 }
