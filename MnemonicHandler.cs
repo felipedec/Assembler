@@ -146,12 +146,12 @@ namespace Assembler
                 Current.InstructionBuffer += Environment.NewLine;
             }
 
-            if(!Current.bWasInstrucitonAssembled)
+            if (!Current.bWasInstrucitonAssembled)
                 Current.InstructionCount = 1;
 
             if (bMustAppendLineNumber)
             {
-                    Int32 Line = Current.InstructionCount == 1 ? Current.Line : 0xFF;
+                    Int32 Line = Current.InstructionCount == 1 ? Current.Line : 0;
                     Current.InstructionBuffer += IntToBinaryPadded(Line, kArgumentBitsLength);
             }
 

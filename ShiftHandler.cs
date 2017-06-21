@@ -16,7 +16,7 @@ namespace Assembler
                 {
                     Write(Current.Mnemonic.Equals("desq") ? 24 : 25, kInstructionAddressBitsLength);
                     Write(GetIntArgument("Register") * kRegisterBitsLength, kArgumentBitsLength);
-                    Write(0xFFFFFF, kArgumentBitsLength);
+                    Write(0xFF, kArgumentBitsLength);
                 })
             };
         }

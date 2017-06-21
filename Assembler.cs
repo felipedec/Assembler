@@ -12,7 +12,7 @@ namespace Assembler
 
         static void Main(String[] Args)
         {
-            Console.Title = "Observatorul Palomar 11059";
+            Console.Title = "Palomar 11059";
 
             // Validar opções de entrada
             Validate(Args);
@@ -24,7 +24,7 @@ namespace Assembler
             }
             catch(Exception e)
             {
-                LogFatalError(0, e.Message);
+                LogFatalError(0, e.Message + "\n\n\n" + e.StackTrace);
             }
 
             // Exibir conteúdo dos arquivos de entrada e saída caso requisitado

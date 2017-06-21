@@ -75,11 +75,6 @@ namespace Assembler
         public const Int32 kRegisterBitsLength = kWordBitsLength;
 
         /// <summary>
-        /// Valor máximo aceitado por um argumento
-        /// </summary>
-        public const Int32 kMaxArgumentValue = 0xFF;
-
-        /// <summary>
         /// Label de entrada
         /// </summary>
         public const String kEntryLabelName = "MAIN";
@@ -198,6 +193,8 @@ namespace Assembler
         /// </summary>
         private static void AssembleCurrentLine()
         {
+            Log(InputLines[Line]);
+
             // Se a linha já foi montada então só adicionar a instrução já gerada na saída.
             if (InputLines[Line].bHasBeenAssembled)
             {
@@ -275,7 +272,6 @@ namespace Assembler
         /// <param name="TargetLine">Número da linha</param>
         public static void Jump(Int32 TargetLine)
         {
-            Console.WriteLine("line: " + TargetLine);
             Line = TargetLine;
         }
 
@@ -283,17 +279,18 @@ namespace Assembler
         /// Ir para um rótulo
         /// </summary>
         /// <param name="LabelName">Nome do rotúlo</param>
-        public static void Goto(String LabelName)
+        public static bool Goto(String LabelName)
         {
             Int32 LabelLine;
             if(Labels.TryGetValue(LabelName, out LabelLine))
             {
                 Jump(LabelLine);
-                return;
+                return true;
             }
 
             LogFatalError(Line + 1, "Label \'{0}\' not found.");
             GotoEndOfFile();
+            return false;
         }
 
         /// <summary>

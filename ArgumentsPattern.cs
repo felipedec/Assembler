@@ -9,6 +9,7 @@ namespace Assembler
     /// </summary>
     public struct ArgumentsPattern
     {
+
         #region Properties
 
         /// <summary>
@@ -33,6 +34,18 @@ namespace Assembler
         public Action AssembleInstruction { private set; get; }
 
         #endregion Properties
+
+        #region Indexers
+
+        public Regex this[Int32 Index]
+        {
+            get
+            {
+                return ArgumentsRegExpressions[Index];
+            }
+        }
+
+        #endregion Indexers
 
         #region Constructors
 
@@ -73,14 +86,6 @@ namespace Assembler
 
             OutMatches = TempMatches;
             return true;
-        }
-
-        public Regex this[Int32 Index]
-        {
-            get
-            {
-                return ArgumentsRegExpressions[Index];
-            }
         }
 
         #endregion Methods

@@ -23,7 +23,7 @@ namespace Assembler
         private static void WriteRegisterConstantValue(String Register, String Constant, Int32 Offset, Int32 Base)
         {
             Int32 ConstantValue = GetIntArgument(Constant, Base);
-            Boolean bUseDoubleWord = ConstantValue > kMaxArgumentValue;
+            Boolean bUseDoubleWord = ConstantValue > 0xFF;
             Int32 InstructionAddress = GetBaseIntructionAddress() + Offset + (bUseDoubleWord ? 1 : 0);
 
             Write(InstructionAddress, kInstructionAddressBitsLength);
@@ -31,7 +31,7 @@ namespace Assembler
 
             if (bUseDoubleWord)
             {
-                Write(kMaxArgumentValue, kArgumentBitsLength);
+                Write(0xFF, kArgumentBitsLength);
                 Write(ConstantValue, kWordBitsLength);
             }
             else
@@ -49,7 +49,7 @@ namespace Assembler
 
         private static Int32 GetBaseIntructionAddress()
         {
-            switch(AssemblyEvent.Current.Mnemonic[0])
+            switch (AssemblyEvent.Current.Mnemonic[0])
             {
                 case 'a': return 0;
                 case 's': return 6;
